@@ -2,9 +2,9 @@
 
 namespace SpendManagement.Identity.Application.PolicyRequirements
 {
-    public class HorarioComercialHandler : AuthorizationHandler<HorarioComercialRequirement>
+    public class BusinessHours : AuthorizationHandler<BusinessHourRequirement>
     {
-        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, HorarioComercialRequirement requirement)
+        protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, BusinessHourRequirement requirement)
         {
             var horarioAtual = TimeOnly.FromDateTime(DateTime.Now);
             if (horarioAtual.Hour >= 8 && horarioAtual.Hour <= 18)

@@ -1,12 +1,12 @@
 ﻿using SpendManagement.Identity.Application.Requests;
 using SpendManagement.Identity.Application.Responses;
 
-namespace SpendManagement.Identity.Application.Services.Interfaces
+namespace SpendManagement.Identity.Application.Services
 {
     public interface IIdentityService
     {
-        Task<UserSignInResponse> CadastrarUsuario(SignUpUserRequest usuarioCadastro);
+        Task<UserSignInResponse> SignUp(SignUpUserRequest usuarioCadastro);
         Task<UserLoginResponse> Login(SignInUserRequest usuarioLogin);
-        Task<UserLoginResponse> LoginSemSenha(string usuarioId);
+        Task<UserLoginResponse> LoginWithoutPassword(string usuarioId);
     }
 }

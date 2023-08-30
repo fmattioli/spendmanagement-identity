@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SpendManagement.Identity.Application.Requests;
 using SpendManagement.Identity.Application.Responses;
-using SpendManagement.Identity.Application.Services.Interfaces;
+using SpendManagement.Identity.Application.Services;
 using System.Security.Claims;
 
 namespace SpendManagement.Identity.API.Controllers
@@ -14,45 +14,45 @@ namespace SpendManagement.Identity.API.Controllers
         public UserController(IIdentityService identityService) => _identityService = identityService;
 
         /// <summary>
-        /// Cadastro de usuário.
+        /// SignUp Users
         /// </summary>
         /// <remarks>
         /// </remarks>
-        /// <param name="signUp">Dados de cadastro do usuário</param>
+        /// <param name="signUp">Datas from signed users</param>
         /// <returns></returns>
-        /// <response code="200">Usuário criado com sucesso</response>
-        /// <response code="400">Retorna erros de validação</response>
-        /// <response code="500">Retorna erros caso ocorram</response>
+        /// <response code="200">User created with successfully</response>
+        /// <response code="400">Validation errors</response>
+        /// <response code="500">Internal errors</response>
         [ProducesResponseType(typeof(UserLoginResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        [HttpPost("cadastro")]
+        [HttpPost("/signUp")]
         public async Task<IActionResult> SignUp(SignUpUserRequest signUp)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var resultado = await _identityService.CadastrarUsuario(signUp);
+            var userSignedIn = await _identityService.SignUp(signUp);
 
-            if (resultado.Sucesso)
+            if (userSignedIn.Success)
             {
-                return Created("/cadastro", resultado);
+                return Created("/signUp", userSignedIn);
             }
 
-            return BadRequest(resultado.Erros);
+            return BadRequest(userSignedIn.Errors);
         }
 
         /// <summary>
-        /// Login do usuário via usuário/senha.
+        /// User's login by e-mail and password
         /// </summary>
         /// <remarks>
         /// </remarks>
-        /// <param name="login">Dados de login do usuário</param>
+        /// <param name="login">User's login data</param>
         /// <returns></returns>
-        /// <response code="200">Login realizado com sucesso</response>
-        /// <response code="400">Retorna erros de validação</response>
-        /// <response code="401">Erro caso usuário não esteja autorizado</response>
-        /// <response code="500">Retorna erros caso ocorram</response>
+        /// <response code="200">User logged with sucessfully</response>
+        /// <response code="400">Validation errors</response>
+        /// <response code="401">Authentication error</response>
+        /// <response code="500">Internal error</response>
         [ProducesResponseType(typeof(UserLoginResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -65,22 +65,22 @@ namespace SpendManagement.Identity.API.Controllers
 
             var resultado = await _identityService.Login(login);
 
-            if (resultado.Sucesso)
+            if (resultado.Success)
                 return Ok(resultado);
 
             return Unauthorized();
         }
 
         /// <summary>
-        /// Login do usuário via refresh token.
+        /// User login by refresh token.
         /// </summary>
         /// <remarks>
         /// </remarks>
         /// <returns></returns>
-        /// <response code="200">Login realizado com sucesso</response>
-        /// <response code="400">Retorna erros de validação</response>
-        /// <response code="401">Erro caso usuário não esteja autorizado</response>
-        /// <response code="500">Retorna erros caso ocorram</response>
+        /// <response code="200">User logged with sucessfully</response>
+        /// <response code="400">Validation errors</response>
+        /// <response code="401">Authentication error</response>
+        /// <response code="500">Internal error</response>
         [ProducesResponseType(typeof(UserLoginResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -91,12 +91,12 @@ namespace SpendManagement.Identity.API.Controllers
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
             var usuarioId = identity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (usuarioId == null)
+            if (usuarioId is null)
                 return BadRequest();
 
-            var resultado = await _identityService.LoginSemSenha(usuarioId);
-            if (resultado.Sucesso)
-                return Ok(resultado);
+            var result = await _identityService.LoginWithoutPassword(usuarioId);
+            if (result.Success)
+                return Ok(result);
 
             return Unauthorized();
         }

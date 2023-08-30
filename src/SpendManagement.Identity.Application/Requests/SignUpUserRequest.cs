@@ -10,9 +10,9 @@ namespace SpendManagement.Identity.Application.Requests
 
         [Required(ErrorMessage = "O campo {0} é obrigatório")]
         [StringLength(50, ErrorMessage = "O campo {0} deve ter entre {2} e {1} caracteres", MinimumLength = 6)]
-        public string? Senha { get; set; }
+        public string? Passsword { get; set; }
 
-        [Compare(nameof(Senha), ErrorMessage = "As senhas devem ser iguais")]
-        public string? SenhaConfirmacao { get; set; }
+        [Compare(nameof(Passsword), ErrorMessage = "As senhas devem ser iguais")]
+        public string? PasswordConfirmation { get; set; }
     }
 }

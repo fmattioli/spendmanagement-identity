@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SpendManagement.Identity.Application.Services.Interfaces;
 using SpendManagement.Identity.Application.Services;
 using SpendManagement.Identity.Data.Data;
 using Microsoft.AspNetCore.Identity;

@@ -2,8 +2,7 @@
 
 namespace SpendManagement.Identity.Application.PolicyRequirements
 {
-    public class HorarioComercialRequirement : IAuthorizationRequirement
+    public class BusinessHourRequirement : IAuthorizationRequirement
     {
-        public HorarioComercialRequirement() { }
     }
 }

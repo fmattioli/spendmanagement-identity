@@ -9,6 +9,6 @@ namespace SpendManagement.Identity.Application.Requests
         public string? Email { get; set; }
 
         [Required(ErrorMessage = "O campo {0} é obrigatório")]
-        public string? Senha { get; set; }
+        public string? Password { get; set; }
     }
 }

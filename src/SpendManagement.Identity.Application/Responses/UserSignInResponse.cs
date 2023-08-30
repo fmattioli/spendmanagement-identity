@@ -2,16 +2,16 @@
 {
     public class UserSignInResponse
     {
-        public bool Sucesso { get; }
-        public List<string> Erros { get; }
+        public bool Success { get; }
+        public List<string> Errors { get; }
 
         public UserSignInResponse() =>
-            Erros = new List<string>();
+            Errors = new List<string>();
 
         public UserSignInResponse(bool sucesso = true) : this() =>
-            Sucesso = sucesso;
+            Success = sucesso;
 
-        public void AdicionarErros(IEnumerable<string> erros) =>
-            Erros.AddRange(erros);
+        public void AddError(IEnumerable<string> erros) =>
+            Errors.AddRange(erros);
     }
 }

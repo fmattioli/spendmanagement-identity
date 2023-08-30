@@ -4,7 +4,7 @@ namespace SpendManagement.Identity.Application.Responses
 {
     public class UserLoginResponse
     {
-        public bool Sucesso => Erros?.Count == 0;
+        public bool Success => Erros?.Count == 0;
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? AccessToken { get; }

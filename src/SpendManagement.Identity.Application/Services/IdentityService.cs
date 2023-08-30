@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Options;
 using SpendManagement.Identity.Application.Requests;
 using SpendManagement.Identity.Application.Responses;
-using SpendManagement.Identity.Application.Services.Interfaces;
 using SpendManagement.Identity.Data.Configuration;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -24,7 +23,7 @@ namespace SpendManagement.Identity.Application.Services
             _jwtOptions = jwtOptions.Value;
         }
 
-        public async Task<UserSignInResponse> CadastrarUsuario(SignUpUserRequest usuarioCadastro)
+        public async Task<UserSignInResponse> SignUp(SignUpUserRequest usuarioCadastro)
         {
             var identityUser = new IdentityUser
             {
@@ -33,20 +32,20 @@ namespace SpendManagement.Identity.Application.Services
                 EmailConfirmed = true
             };
 
-            var result = await _userManager.CreateAsync(identityUser, usuarioCadastro.Senha);
+            var result = await _userManager.CreateAsync(identityUser, usuarioCadastro.Passsword);
             if (result.Succeeded)
                 await _userManager.SetLockoutEnabledAsync(identityUser, false);
 
             var usuarioCadastroResponse = new UserSignInResponse(result.Succeeded);
             if (!result.Succeeded && result.Errors.Any())
-                usuarioCadastroResponse.AdicionarErros(result.Errors.Select(r => r.Description));
+                usuarioCadastroResponse.AddError(result.Errors.Select(r => r.Description));
 
             return usuarioCadastroResponse;
         }
 
         public async Task<UserLoginResponse> Login(SignInUserRequest usuarioLogin)
         {
-            var result = await _signInManager.PasswordSignInAsync(usuarioLogin.Email, usuarioLogin.Senha, false, true);
+            var result = await _signInManager.PasswordSignInAsync(usuarioLogin.Email, usuarioLogin.Password, false, true);
             if (result.Succeeded)
                 return await GerarCredenciais(usuarioLogin.Email);
 
@@ -66,7 +65,7 @@ namespace SpendManagement.Identity.Application.Services
             return usuarioLoginResponse;
         }
 
-        public async Task<UserLoginResponse> LoginSemSenha(string usuarioId)
+        public async Task<UserLoginResponse> LoginWithoutPassword(string usuarioId)
         {
             var usuarioLoginResponse = new UserLoginResponse();
             var usuario = await _userManager.FindByIdAsync(usuarioId);
@@ -76,7 +75,7 @@ namespace SpendManagement.Identity.Application.Services
             else if (!await _userManager.IsEmailConfirmedAsync(usuario))
                 usuarioLoginResponse.AddError("Essa conta precisa confirmar seu e-mail antes de realizar o login");
 
-            if (usuarioLoginResponse.Sucesso)
+            if (usuarioLoginResponse.Success)
                 return await GerarCredenciais(usuario.Email);
 
             return usuarioLoginResponse;

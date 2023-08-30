@@ -62,11 +62,11 @@ namespace SpendManagement.Identity.IoC.Extensions
 
         public static void AddAuthorizationPolicies(this IServiceCollection services)
         {
-            services.AddSingleton<IAuthorizationHandler, HorarioComercialHandler>();
+            services.AddSingleton<IAuthorizationHandler, BusinessHours>();
             services.AddAuthorization(options =>
             {
                 options.AddPolicy(Policies.HorarioComercial, policy =>
-                    policy.Requirements.Add(new HorarioComercialRequirement()));
+                    policy.Requirements.Add(new BusinessHourRequirement()));
             });
         }
     }
