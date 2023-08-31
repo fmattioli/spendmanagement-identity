@@ -4,17 +4,17 @@ namespace SpendManagement.Identity.Application.Responses
 {
     public class UserLoginResponse
     {
-        public bool Success => Erros?.Count == 0;
+        public bool Success => Errors?.Count == 0;
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? AccessToken { get; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? RefreshToken { get;}
 
-        public List<string>? Erros { get;}
+        public List<string>? Errors { get;}
 
         public UserLoginResponse() =>
-            Erros = new List<string>();
+            Errors = new List<string>();
 
         public UserLoginResponse(string accessToken, string refreshToken) : this()
         {
@@ -22,10 +22,13 @@ namespace SpendManagement.Identity.Application.Responses
             RefreshToken = refreshToken;
         }
 
-        public void AddError(string erro) =>
-            Erros?.Add(erro);
+        public UserLoginResponse AddErrors(string erro)
+        {
+            Errors?.Add(erro);
+            return this;
+        }
 
         public void AdicionarErros(IEnumerable<string> erros) =>
-            Erros?.AddRange(erros);
+            Errors?.AddRange(erros);
     }
 }

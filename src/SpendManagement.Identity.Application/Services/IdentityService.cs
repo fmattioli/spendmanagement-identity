@@ -23,7 +23,7 @@ namespace SpendManagement.Identity.Application.Services
             _jwtOptions = jwtOptions.Value;
         }
 
-        public async Task<UserSignInResponse> SignUp(SignUpUserRequest usuarioCadastro)
+        public async Task<UserSignedInResponse> SignUp(SignUpUserRequest usuarioCadastro)
         {
             var identityUser = new IdentityUser
             {
@@ -36,33 +36,40 @@ namespace SpendManagement.Identity.Application.Services
             if (result.Succeeded)
                 await _userManager.SetLockoutEnabledAsync(identityUser, false);
 
-            var usuarioCadastroResponse = new UserSignInResponse(result.Succeeded);
+            var userSignedResponse = new UserSignedInResponse(result.Succeeded);
             if (!result.Succeeded && result.Errors.Any())
-                usuarioCadastroResponse.AddError(result.Errors.Select(r => r.Description));
+                userSignedResponse.AddError(result.Errors.Select(r => r.Description));
 
-            return usuarioCadastroResponse;
+            return userSignedResponse;
         }
 
         public async Task<UserLoginResponse> Login(SignInUserRequest usuarioLogin)
         {
             var result = await _signInManager.PasswordSignInAsync(usuarioLogin.Email, usuarioLogin.Password, false, true);
+
             if (result.Succeeded)
-                return await GerarCredenciais(usuarioLogin.Email);
+                return await GenerateCredentials(usuarioLogin.Email);
 
             var usuarioLoginResponse = new UserLoginResponse();
+
             if (!result.Succeeded)
             {
-                if (result.IsLockedOut)
-                    usuarioLoginResponse.AddError("Essa conta está bloqueada");
-                else if (result.IsNotAllowed)
-                    usuarioLoginResponse.AddError("Essa conta não tem permissão para fazer login");
-                else if (result.RequiresTwoFactor)
-                    usuarioLoginResponse.AddError("É necessário confirmar o login no seu segundo fator de autenticação");
-                else
-                    usuarioLoginResponse.AddError("Usuário ou senha estão incorretos");
+                usuarioLoginResponse = result switch
+                {
+                    _ when result.IsLockedOut.Equals(true) => usuarioLoginResponse.AddErrors("This account is locked."),
+                    _ when result.IsNotAllowed.Equals(true) => usuarioLoginResponse.AddErrors("This account is locked."),
+                    _ when result.RequiresTwoFactor.Equals(true) => usuarioLoginResponse.AddErrors("This account is locked."),
+                    _ => usuarioLoginResponse.AddErrors("User or password incorrect"),
+                };
             }
 
             return usuarioLoginResponse;
+        }
+
+        public async Task<IList<Claim>> AddUserInClaim(AddUserInClaim userInClaim)
+        {
+            var user = await _userManager.FindByEmailAsync(userInClaim.Email);
+            return await InsertUserInClaim(user, userInClaim);
         }
 
         public async Task<UserLoginResponse> LoginWithoutPassword(string usuarioId)
@@ -70,22 +77,19 @@ namespace SpendManagement.Identity.Application.Services
             var usuarioLoginResponse = new UserLoginResponse();
             var usuario = await _userManager.FindByIdAsync(usuarioId);
 
-            if (await _userManager.IsLockedOutAsync(usuario))
-                usuarioLoginResponse.AddError("Essa conta está bloqueada");
-            else if (!await _userManager.IsEmailConfirmedAsync(usuario))
-                usuarioLoginResponse.AddError("Essa conta precisa confirmar seu e-mail antes de realizar o login");
-
-            if (usuarioLoginResponse.Success)
-                return await GerarCredenciais(usuario.Email);
-
-            return usuarioLoginResponse;
+            return _userManager switch
+            {
+                _ when await _userManager.IsLockedOutAsync(usuario) => usuarioLoginResponse.AddErrors("This account is locked."),
+                _ when !await _userManager.IsEmailConfirmedAsync(usuario) => usuarioLoginResponse.AddErrors("This account is locked."),
+                _ => await GenerateCredentials(usuario.Email)
+            };
         }
 
-        private async Task<UserLoginResponse> GerarCredenciais(string? email)
+        private async Task<UserLoginResponse> GenerateCredentials(string? email)
         {
             var user = await _userManager.FindByEmailAsync(email);
-            var accessTokenClaims = await ObterClaims(user, adicionarClaimsUsuario: true);
-            var refreshTokenClaims = await ObterClaims(user, adicionarClaimsUsuario: false);
+            var accessTokenClaims = await GetClaims(user, true);
+            var refreshTokenClaims = await GetClaims(user, false);
 
             var dataExpiracaoAccessToken = DateTime.Now.AddSeconds(_jwtOptions.AccessTokenExpiration);
             var dataExpiracaoRefreshToken = DateTime.Now.AddSeconds(_jwtOptions.RefreshTokenExpiration);
@@ -113,7 +117,7 @@ namespace SpendManagement.Identity.Application.Services
             return new JwtSecurityTokenHandler().WriteToken(jwt);
         }
 
-        private async Task<IList<Claim>> ObterClaims(IdentityUser user, bool adicionarClaimsUsuario)
+        private async Task<IList<Claim>> GetClaims(IdentityUser user, bool adicionarClaimsUsuario)
         {
             var claims = new List<Claim>
             {
@@ -136,6 +140,13 @@ namespace SpendManagement.Identity.Application.Services
             }
 
             return claims;
+        }
+
+        private async Task<IList<Claim>> InsertUserInClaim(IdentityUser user, AddUserInClaim userInClaim)
+        {
+            await _userManager.AddClaimAsync(user, new Claim(userInClaim.ClaimType.ToString(), userInClaim.ClaimValue.ToString()));
+            var userClaims = await _userManager.GetClaimsAsync(user);
+            return userClaims;
         }
     }
 }

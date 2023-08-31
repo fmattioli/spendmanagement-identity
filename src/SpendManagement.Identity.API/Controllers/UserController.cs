@@ -71,6 +71,24 @@ namespace SpendManagement.Identity.API.Controllers
             return Unauthorized();
         }
 
+        [ProducesResponseType(typeof(UserLoginResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        [HttpPost("addUserInClaim")]
+        public async Task<ActionResult<UserLoginResponse>> AddUserInClaim([FromBody] AddUserInClaim userClaim)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var resultado = await _identityService.AddUserInClaim(userClaim);
+
+            if (resultado.Any())
+                return Ok(resultado);
+
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
+
         /// <summary>
         /// User login by refresh token.
         /// </summary>
