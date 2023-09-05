@@ -7,6 +7,8 @@ using System.Security.Claims;
 
 namespace SpendManagement.Identity.API.Controllers
 {
+    [Route("api/v1")]
+    [ApiController]
     public class UserController : ControllerBase
     {
         private readonly IIdentityService _identityService;
@@ -23,10 +25,11 @@ namespace SpendManagement.Identity.API.Controllers
         /// <response code="200">User created with successfully</response>
         /// <response code="400">Validation errors</response>
         /// <response code="500">Internal errors</response>
+        [HttpPost]
+        [Route("signUp", Name = nameof(SignUp))]
         [ProducesResponseType(typeof(UserLoginResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        [HttpPost("/signUp")]
         public async Task<IActionResult> SignUp(SignUpUserRequest signUp)
         {
             if (!ModelState.IsValid)
@@ -53,11 +56,12 @@ namespace SpendManagement.Identity.API.Controllers
         /// <response code="400">Validation errors</response>
         /// <response code="401">Authentication error</response>
         /// <response code="500">Internal error</response>
+        [HttpPost]
+        [Route("login", Name = nameof(Login))]
         [ProducesResponseType(typeof(UserLoginResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        [HttpPost("login")]
         public async Task<ActionResult<UserLoginResponse>> Login([FromBody] SignInUserRequest login)
         {
             if (!ModelState.IsValid)
@@ -71,11 +75,12 @@ namespace SpendManagement.Identity.API.Controllers
             return Unauthorized();
         }
 
+        [HttpPost]
+        [Route("addUserInClaim", Name = nameof(AddUserInClaim))]
         [ProducesResponseType(typeof(UserLoginResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        [HttpPost("addUserInClaim")]
         public async Task<ActionResult<UserLoginResponse>> AddUserInClaim([FromBody] AddUserInClaim userClaim)
         {
             if (!ModelState.IsValid)
@@ -99,12 +104,13 @@ namespace SpendManagement.Identity.API.Controllers
         /// <response code="400">Validation errors</response>
         /// <response code="401">Authentication error</response>
         /// <response code="500">Internal error</response>
+        [HttpPost]
+        [Route("refreshLogin", Name = nameof(RefreshLogin))]
         [ProducesResponseType(typeof(UserLoginResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         [Authorize]
-        [HttpPost("refresh-login")]
         public async Task<ActionResult<UserLoginResponse>> RefreshLogin()
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
