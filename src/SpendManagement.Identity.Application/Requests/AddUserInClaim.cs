@@ -18,6 +18,6 @@
         Read,
         Insert,
         Update,
-        Remove
+        Delete
     }
 }
