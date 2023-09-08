@@ -6,7 +6,6 @@ This project aims to be the identity related to the users who use the spend mana
 > https://github.com/fmattioli/spendmanagement-domain <br/>
 > https://github.com/fmattioli/spendmanagement-eventhandler <br/>
 > https://github.com/fmattioli/spendmanagement-readmodel <br/>
-> https://github.com/fmattioli/spendmanagement-eventsourcing <br/>
 
 # Related packages
 > https://github.com/fmattioli/spendmanagement-contracts <br/>
