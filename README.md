@@ -1,7 +1,8 @@
-# spendmanagement-indentity
-This project aims to be the identity related to the users who use the spend management-api. This project bring securirty to the apis inside the spend management environment.
+# spendmanagement-identity
+This project aims to be the identity related to the users who use the spendmanagement-api. This project bring securirty to the apis inside the spend management environment.
 
 # Related projects
+> https://github.com/fmattioli/spendmanagement-api <br/>
 > https://github.com/fmattioli/spendmanagement-apigateway <br/>
 > https://github.com/fmattioli/spendmanagement-domain <br/>
 > https://github.com/fmattioli/spendmanagement-eventhandler <br/>
