@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OpenTelemetry.Trace;
 using SpendManagement.Identity.Application.Requests;
 using SpendManagement.Identity.Application.Responses;
 using SpendManagement.Identity.Application.Services;
@@ -12,8 +13,12 @@ namespace SpendManagement.Identity.API.Controllers
     public class UserController : ControllerBase
     {
         private readonly IIdentityService _identityService;
-
-        public UserController(IIdentityService identityService) => _identityService = identityService;
+        private readonly Tracer _tracer;
+        public UserController(IIdentityService identityService, Tracer tracer)
+        {
+            _identityService = identityService;
+            _tracer = tracer;
+        }
 
         /// <summary>
         /// SignUp Users
@@ -35,6 +40,7 @@ namespace SpendManagement.Identity.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
+            using var span = _tracer.StartActiveSpan("SayHello");
             var userSignedIn = await _identityService.SignUp(signUp);
 
             if (userSignedIn.Success)

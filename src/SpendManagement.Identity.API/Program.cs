@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddTracing();
 builder.Services.AddCors();
 builder.Services.AddHealthCheckers(builder.Configuration);
 builder.Services.AddControllers().AddJsonOptions(options =>
