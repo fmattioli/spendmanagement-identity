@@ -19,6 +19,8 @@ builder.Services
 
 var app = builder.Build();
 
+app.RunMigrationsOnApplicationStart();
+
 app.UseSwagger();
 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SpendManagement.Identity"));
 app.UseHealthCheckers();

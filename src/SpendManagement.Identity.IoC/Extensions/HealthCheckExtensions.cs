@@ -13,12 +13,13 @@ namespace SpendManagement.Identity.IoC.Extensions
             services.AddHealthChecks()
                 .AddSqlServer(configuration.GetConnectionString("SpendManagementIdentity"), name: "SqlServer", tags: new string[] { "db", "data" });
 
-            services.AddHealthChecksUI()
+            services.AddHealthChecksUI(setupSettings: setup => setup.SetEvaluationTimeInSeconds(60))
                 .AddInMemoryStorage();
         }
 
         public static void UseHealthCheckers(this IApplicationBuilder app)
         {
+
             app.UseHealthChecks("/health", new HealthCheckOptions()
             {
                 Predicate = _ => true,
