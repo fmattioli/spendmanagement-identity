@@ -1,0 +1,21 @@
+version: "3.7"
+
+networks:
+  spendmanagement:
+    external:
+      name: spendmanagement-network
+
+services:
+
+    identity:
+      container_name: spendmanagement_identity
+      build:
+        context: .
+        dockerfile: Dockerfile
+      image: spendmanagement_identity
+      environment:
+        - ASPNETCORE_ENVIRONMENT=Development
+      ports:
+        - "8082:80"
+      networks:
+        - spendmanagement      
