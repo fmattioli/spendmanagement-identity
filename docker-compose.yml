@@ -16,6 +16,6 @@ services:
       environment:
         - ASPNETCORE_ENVIRONMENT=Development
       ports:
-        - "8082:80"
+        - 8082:80
       networks:
-        - spendmanagement      
+        - spendmanagement
