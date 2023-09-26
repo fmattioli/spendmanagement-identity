@@ -1,14 +1,12 @@
 using SpendManagement.Identity.IoC.Extensions;
-using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddTracing();
+builder.Services.AddTracing(builder.Configuration);
 builder.Services.AddCors();
 builder.Services.AddHealthCheckers(builder.Configuration);
-builder.Services.AddControllers().AddJsonOptions(options =>
-        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddAuthentication(builder.Configuration);
 builder.Services.AddAuthorizationPolicies();
