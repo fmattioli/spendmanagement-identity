@@ -6,7 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddTracing();
 builder.Services.AddCors();
-//builder.Services.AddHealthCheckers(builder.Configuration);
+builder.Services.AddHealthCheckers(builder.Configuration);
 builder.Services.AddControllers().AddJsonOptions(options =>
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddEndpointsApiExplorer();
@@ -23,7 +23,7 @@ app.RunMigrationsOnApplicationStart();
 
 app.UseSwagger();
 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SpendManagement.Identity"));
-//app.UseHealthCheckers();
+app.UseHealthCheckers();
 
 app.UseHttpsRedirection();
 app.UseAuthentication();
