@@ -1,16 +1,25 @@
 using SpendManagement.Identity.IoC.Extensions;
+using SpendManagement.Identity.IoC.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var enviroment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+builder.Configuration
+    .AddJsonFile("appsettings.json", false, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{enviroment}.json", true, reloadOnChange: true)
+    .AddEnvironmentVariables();
+
+var applicationSettings = builder.Configuration.GetSection("Settings").Get<Settings>();
+
 // Add services to the container.
-builder.Services.AddTracing(builder.Configuration);
-builder.Services.AddCors();
-builder.Services.AddHealthCheckers(builder.Configuration);
+builder.Services.AddTracing(applicationSettings.TracingSettings);
+builder.Services.AddHealthCheckers(applicationSettings.SqlServerSettings);
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddAuthentication(builder.Configuration);
+builder.Services.AddAuthentication(applicationSettings.JwtOptionsSettings);
 builder.Services.AddAuthorizationPolicies();
-builder.Services.RegisterServices(builder.Configuration);
+builder.Services.RegisterServices(applicationSettings.SqlServerSettings);
+builder.Services.AddCors();
 builder.Services
     .AddEndpointsApiExplorer()
     .AddSwaggerExtensions();
