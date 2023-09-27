@@ -4,12 +4,13 @@ using OpenTelemetry.Exporter;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using SpendManagement.Identity.Data.Constants;
+using SpendManagement.Identity.IoC.Models;
 
 namespace SpendManagement.Identity.IoC.Extensions
 {
     public static class TracingExtensions
     {
-        public static IServiceCollection AddTracing(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddTracing(this IServiceCollection services, TracingSettings? tracingSettings)
         {
             services.AddOpenTelemetry().WithTracing(tcb =>
             {
@@ -21,7 +22,7 @@ namespace SpendManagement.Identity.IoC.Extensions
                 .AddAspNetCoreInstrumentation()
                 .AddOtlpExporter(opt =>
                  {
-                     opt.Endpoint = new Uri(configuration["TracingSettings:Uri"] + ":" + configuration["TracingSettings:Port"]);
+                     opt.Endpoint = new Uri(tracingSettings?.Uri + ":" + tracingSettings?.Port);
                      opt.Protocol = OtlpExportProtocol.Grpc;
                  });
              });
