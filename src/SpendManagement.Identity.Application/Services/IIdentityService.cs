@@ -1,4 +1,6 @@
-﻿using SpendManagement.Identity.Application.Requests;
+﻿using Microsoft.AspNetCore.Identity;
+
+using SpendManagement.Identity.Application.Requests;
 using SpendManagement.Identity.Application.Responses;
 using System.Security.Claims;
 
@@ -8,7 +10,8 @@ namespace SpendManagement.Identity.Application.Services
     {
         Task<UserSignedInResponse> SignUp(SignUpUserRequest usuarioCadastro);
         Task<UserLoginResponse> Login(SignInUserRequest usuarioLogin);
-        Task<IList<Claim>> AddUserInClaim(AddUserInClaim userInClaim);
+        Task<IdentityUser?> AddUserInClaim(AddUserInClaim userInClaim);
+        Task<IEnumerable<Claim>> GetUserClaims(IdentityUser? user);
         Task<UserLoginResponse> LoginWithoutPassword(string usuarioId);
     }
 }

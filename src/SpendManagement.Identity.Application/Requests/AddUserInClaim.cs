@@ -3,21 +3,26 @@
     public class AddUserInClaim
     {
         public string? Email { get; set; }
+        public IEnumerable<UserClaim>? Claims { get; set; }
+    }
+
+    public class UserClaim
+    {
         public ClaimType ClaimType { get; set; }
         public ClaimValue ClaimValue { get; set; }
     }
 
     public enum ClaimType
     {
-        Category,
-        Receipt
+        Receipt = 0,
+        Category = 1
     }
 
     public enum ClaimValue
     {
-        Read,
-        Insert,
-        Update,
-        Delete
+        Insert = 0,
+        Read = 1,
+        Update = 2,
+        Delete = 3
     }
 }

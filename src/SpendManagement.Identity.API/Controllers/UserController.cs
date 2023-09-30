@@ -92,12 +92,8 @@ namespace SpendManagement.Identity.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var resultado = await _identityService.AddUserInClaim(userClaim);
-
-            if (resultado.Any())
-                return Ok(resultado);
-
-            return StatusCode(StatusCodes.Status500InternalServerError);
+            var user = await _identityService.AddUserInClaim(userClaim);
+            return Ok(await _identityService.GetUserClaims(user));
         }
 
         /// <summary>

@@ -7,7 +7,6 @@ using SpendManagement.Identity.Application.PolicyRequirements;
 using SpendManagement.Identity.Data.Configuration;
 using SpendManagement.Identity.Data.Constants;
 using SpendManagement.Identity.IoC.Models;
-
 using System.Text;
 
 namespace SpendManagement.Identity.IoC.Extensions
