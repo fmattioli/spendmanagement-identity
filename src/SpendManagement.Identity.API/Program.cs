@@ -1,5 +1,6 @@
 using SpendManagement.Identity.IoC.Extensions;
 using SpendManagement.Identity.IoC.Models;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +16,10 @@ var applicationSettings = builder.Configuration.GetSection("Settings").Get<Setti
 // Add services to the container.
 builder.Services.AddTracing(applicationSettings.TracingSettings);
 builder.Services.AddHealthCheckers(applicationSettings.SqlServerSettings);
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(options =>
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 builder.Services.AddAuthentication(applicationSettings.JwtOptionsSettings);
 builder.Services.AddAuthorizationPolicies();
 builder.Services.RegisterServices(applicationSettings.SqlServerSettings);
