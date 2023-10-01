@@ -66,10 +66,16 @@ namespace SpendManagement.Identity.Application.Services
             return usuarioLoginResponse;
         }
 
-        public async Task<IList<Claim>> AddUserInClaim(AddUserInClaim userInClaim)
+        public async Task<IdentityUser?> AddUserInClaim(AddUserInClaim userInClaim)
         {
             var user = await _userManager.FindByEmailAsync(userInClaim.Email);
-            return await InsertUserInClaim(user, userInClaim);
+
+            if (userInClaim.Claims?.Any() == true)
+            {
+                await _userManager.AddClaimsAsync(user, userInClaim.Claims.Select(claim => new Claim(claim.ClaimType.ToString(), claim.ClaimValue.ToString())));
+            }
+
+            return user;
         }
 
         public async Task<UserLoginResponse> LoginWithoutPassword(string usuarioId)
@@ -104,7 +110,7 @@ namespace SpendManagement.Identity.Application.Services
             );
         }
 
-        private string GerarToken(IEnumerable<Claim> claims, DateTime dataExpiracao)
+        private string GerarToken(IEnumerable<System.Security.Claims.Claim> claims, DateTime dataExpiracao)
         {
             var jwt = new JwtSecurityToken(
                 issuer: _jwtOptions.Issuer,
@@ -117,15 +123,15 @@ namespace SpendManagement.Identity.Application.Services
             return new JwtSecurityTokenHandler().WriteToken(jwt);
         }
 
-        private async Task<IList<Claim>> GetClaims(IdentityUser user, bool adicionarClaimsUsuario)
+        private async Task<IList<System.Security.Claims.Claim>> GetClaims(IdentityUser user, bool adicionarClaimsUsuario)
         {
-            var claims = new List<Claim>
+            var claims = new List<System.Security.Claims.Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Nbf, DateTime.Now.ToString()),
-                new Claim(JwtRegisteredClaimNames.Iat, DateTime.Now.ToString())
+                new System.Security.Claims.Claim(JwtRegisteredClaimNames.Sub, user.Id),
+                new System.Security.Claims.Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new System.Security.Claims.Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new System.Security.Claims.Claim(JwtRegisteredClaimNames.Nbf, DateTime.Now.ToString()),
+                new System.Security.Claims.Claim(JwtRegisteredClaimNames.Iat, DateTime.Now.ToString())
             };
 
             if (adicionarClaimsUsuario)
@@ -136,17 +142,18 @@ namespace SpendManagement.Identity.Application.Services
                 claims.AddRange(userClaims);
 
                 foreach (var role in roles)
-                    claims.Add(new Claim("role", role));
+                    claims.Add(new System.Security.Claims.Claim("role", role));
             }
 
             return claims;
         }
 
-        private async Task<IList<Claim>> InsertUserInClaim(IdentityUser user, AddUserInClaim userInClaim)
+        public async Task<IEnumerable<System.Security.Claims.Claim>> GetUserClaims(IdentityUser? user)
         {
-            await _userManager.AddClaimAsync(user, new Claim(userInClaim.ClaimType.ToString(), userInClaim.ClaimValue.ToString()));
-            var userClaims = await _userManager.GetClaimsAsync(user);
-            return userClaims;
+            if (user is not null)
+                return await _userManager.GetClaimsAsync(user);
+
+            return Enumerable.Empty<System.Security.Claims.Claim>();
         }
     }
 }
