@@ -13,11 +13,9 @@ namespace SpendManagement.Identity.API.Controllers
     public class UserController : ControllerBase
     {
         private readonly IIdentityService _identityService;
-        private readonly Tracer _tracer;
-        public UserController(IIdentityService identityService, Tracer tracer)
+        public UserController(IIdentityService identityService)
         {
             _identityService = identityService;
-            _tracer = tracer;
         }
 
         /// <summary>
@@ -40,7 +38,6 @@ namespace SpendManagement.Identity.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            using var span = _tracer.StartActiveSpan("SayHello");
             var userSignedIn = await _identityService.SignUp(signUp);
 
             if (userSignedIn.Success)
@@ -106,13 +103,12 @@ namespace SpendManagement.Identity.API.Controllers
         /// <response code="400">Validation errors</response>
         /// <response code="401">Authentication error</response>
         /// <response code="500">Internal error</response>
-        [HttpPost]
-        [Route("refreshLogin", Name = nameof(RefreshLogin))]
-        [ProducesResponseType(typeof(UserLoginResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(UserSignedInResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         [Authorize]
+        [HttpPost("refresh-login")]
         public async Task<ActionResult<UserLoginResponse>> RefreshLogin()
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;

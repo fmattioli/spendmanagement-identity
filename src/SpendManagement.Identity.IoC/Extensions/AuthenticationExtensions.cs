@@ -21,8 +21,8 @@ namespace SpendManagement.Identity.IoC.Extensions
 
                 services.Configure<JwtOptions>(options =>
                 {
-                    options.Issuer = nameof(JwtOptions.Issuer);
-                    options.Audience = nameof(JwtOptions.Audience);
+                    options.Issuer = settings.Issuer;
+                    options.Audience = settings.Audience;
                     options.SigningCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha512);
                     options.AccessTokenExpiration = settings.AccessTokenExpiration;
                     options.RefreshTokenExpiration = settings.RefreshTokenExpiration;

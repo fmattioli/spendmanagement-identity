@@ -13,7 +13,7 @@ This project aims to be the identity related to the users who use the spendmanag
 > https://github.com/fmattioli/spendmanagement-topics
 
 # How does it works?
-![Alt text](src/SpendManagementDiagramFlow.jpg?raw=true "Title")
+![Alt text](SpendManagementDiagramFlow.jpg?raw=true "Title")
 
 # How to make it works on your machine?
 The entire project has docker support.
