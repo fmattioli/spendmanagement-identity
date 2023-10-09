@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
-
 using Serilog;
-
 using SpendManagement.Identity.Application.Requests;
 using SpendManagement.Identity.Application.Responses;
 using SpendManagement.Identity.Data.Configuration;
@@ -29,7 +27,7 @@ namespace SpendManagement.Identity.Application.Services
             _logger = logger;
         }
 
-        public async Task<UserSignedInResponse> SignUp(SignUpUserRequest usuarioCadastro)
+        public async Task<UserResponse> SignUp(SignUpUserRequest usuarioCadastro)
         {
             var identityUser = new IdentityUser
             {
@@ -43,7 +41,7 @@ namespace SpendManagement.Identity.Application.Services
             if (result.Succeeded)
                 await _userManager.SetLockoutEnabledAsync(identityUser, false);
 
-            var userSignedResponse = new UserSignedInResponse(result.Succeeded);
+            var userSignedResponse = new UserResponse(result.Succeeded);
 
             if (!result.Succeeded && result.Errors.Any())
                 userSignedResponse.AddError(result.Errors.Select(r => r.Description));
@@ -73,26 +71,43 @@ namespace SpendManagement.Identity.Application.Services
                 };
             }
 
-            _logger.Information("User logged with successfully", usuarioLogin.Email);
-
             return usuarioLoginResponse;
         }
 
-        public async Task<IdentityUser?> AddUserInClaim(AddUserInClaim userInClaim)
+        public async Task<IEnumerable<Claim>> GetUserClaims(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user is not null)
+                return await _userManager.GetClaimsAsync(user);
+
+            return Enumerable.Empty<Claim>();
+        }
+
+        public async Task<UserResponse> AddUserInClaim(AddUserInClaim userInClaim)
         {
             var user = await _userManager.FindByEmailAsync(userInClaim.Email);
 
-            if (userInClaim.Claims?.Any() == true)
+            if (user != null && userInClaim.Claims?.Any() == true)
             {
-                await _userManager.AddClaimsAsync(user,
-                    userInClaim
-                    .Claims
-                    .Select(claim => new Claim(claim.ClaimType.ToString(), claim.ClaimValue.ToString())));
+                var claimsToAdd = userInClaim.Claims
+                    .Select(claim => new Claim(claim.ClaimType.ToString(), claim.ClaimValue.ToString()))
+                    .ToList();
+
+                if (claimsToAdd.Any())
+                {
+                    var identityResult = await _userManager.AddClaimsAsync(user, claimsToAdd);
+
+                    if (identityResult.Succeeded)
+                    {
+                        _logger.Information("User added in claim with success", userInClaim.Email);
+                        return new UserResponse(true);
+                    }
+                }
             }
 
-            _logger.Information("User added in claim with successfully", userInClaim.Email);
-
-            return user;
+            _logger.Information("Failed to add user in claim", userInClaim.Email);
+            return new UserResponse(false);
         }
 
         public async Task<UserLoginResponse> LoginWithoutPassword(string usuarioId)
@@ -119,6 +134,8 @@ namespace SpendManagement.Identity.Application.Services
 
             var accessToken = GerarToken(accessTokenClaims, dataExpiracaoAccessToken);
             var refreshToken = GerarToken(refreshTokenClaims, dataExpiracaoRefreshToken);
+
+            _logger.Information("User logged with successfully", email);
 
             return new UserLoginResponse
             (
@@ -163,14 +180,6 @@ namespace SpendManagement.Identity.Application.Services
             }
 
             return claims;
-        }
-
-        public async Task<IEnumerable<System.Security.Claims.Claim>> GetUserClaims(IdentityUser? user)
-        {
-            if (user is not null)
-                return await _userManager.GetClaimsAsync(user);
-
-            return Enumerable.Empty<System.Security.Claims.Claim>();
         }
     }
 }

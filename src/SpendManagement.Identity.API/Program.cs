@@ -13,6 +13,11 @@ builder.Configuration
 
 var applicationSettings = builder.Configuration.GetSection("Settings").Get<Settings>();
 
+builder.Logging
+    .ClearProviders()
+    .AddFilter("Microsoft", LogLevel.Warning)
+    .AddFilter("Microsoft", LogLevel.Critical);
+
 // Add services to the container.
 builder.Services
     .AddLoggingDependency()

@@ -72,6 +72,32 @@ namespace SpendManagement.Identity.API.Controllers
         }
 
         /// <summary>
+        /// Get user claims
+        /// </summary>
+        /// <param name="email">User email</param>
+        /// <returns>Return users in claims</returns>
+        /// <response code="201">User logged with sucessfully</response>
+        /// <response code="400">Validation errors</response>
+        /// <response code="401">Authentication error</response>
+        /// <response code="500">Internal error</response>
+        [HttpGet]
+        [Route("getUserClaims", Name = nameof(GetUserClaims))]
+        [ProducesResponseType(typeof(UserLoginResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        [Authorize]
+        public async Task<ActionResult<bool>> GetUserClaims(string email)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var userClaims = await _identityService.GetUserClaims(email);
+
+            return Ok(userClaims);
+        }
+
+        /// <summary>
         /// Add user in claim
         /// </summary>
         /// <param name="userClaim">Claim informations</param>
@@ -87,14 +113,13 @@ namespace SpendManagement.Identity.API.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         [Authorize]
-        public async Task<ActionResult<UserLoginResponse>> AddUserInClaim([FromBody] AddUserInClaim userClaim)
+        public async Task<ActionResult<bool>> AddUserInClaim([FromBody] AddUserInClaim userClaim)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var user = await _identityService.AddUserInClaim(userClaim);
-            var claims = await _identityService.GetUserClaims(user);
-            return Created("addUserInClaim", claims);
+            var userClaims = await _identityService.AddUserInClaim(userClaim);
+            return Created("addUserInClaim", userClaims);
         }
 
         /// <summary>
@@ -105,7 +130,7 @@ namespace SpendManagement.Identity.API.Controllers
         /// <response code="400">Validation errors</response>
         /// <response code="401">Authentication error</response>
         /// <response code="500">Internal error</response>
-        [ProducesResponseType(typeof(UserSignedInResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
