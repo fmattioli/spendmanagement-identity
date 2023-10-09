@@ -8,10 +8,10 @@ namespace SpendManagement.Identity.Application.Services
 {
     public interface IIdentityService
     {
-        Task<UserSignedInResponse> SignUp(SignUpUserRequest usuarioCadastro);
+        Task<UserResponse> SignUp(SignUpUserRequest usuarioCadastro);
         Task<UserLoginResponse> Login(SignInUserRequest usuarioLogin);
-        Task<IdentityUser?> AddUserInClaim(AddUserInClaim userInClaim);
-        Task<IEnumerable<Claim>> GetUserClaims(IdentityUser? user);
+        Task<UserResponse> AddUserInClaim(AddUserInClaim userInClaim);
+        Task<IEnumerable<Claim>> GetUserClaims(string email);
         Task<UserLoginResponse> LoginWithoutPassword(string usuarioId);
     }
 }

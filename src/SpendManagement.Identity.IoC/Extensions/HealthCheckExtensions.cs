@@ -1,16 +1,14 @@
 ﻿using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
 using SpendManagement.Identity.IoC.Models;
 
 namespace SpendManagement.Identity.IoC.Extensions
 {
     public static class HealthCheckExtensions
     {
-        public static void AddHealthCheckers(this IServiceCollection services, SqlServerSettings? settings)
+        public static IServiceCollection AddHealthCheckers(this IServiceCollection services, SqlServerSettings? settings)
         {
             if (settings?.ConnectionString is not null)
             {
@@ -22,6 +20,8 @@ namespace SpendManagement.Identity.IoC.Extensions
                     .AddHealthChecksUI()
                     .AddInMemoryStorage();
             }
+
+            return services;
         }
 
         public static void UseHealthCheckers(this IApplicationBuilder app)
