@@ -1,5 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+
+using Serilog;
+
 using SpendManagement.Identity.Application.Requests;
 using SpendManagement.Identity.Application.Responses;
 using SpendManagement.Identity.Data.Configuration;
@@ -13,14 +16,17 @@ namespace SpendManagement.Identity.Application.Services
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly JwtOptions _jwtOptions;
+        private readonly ILogger _logger;
 
         public IdentityService(SignInManager<IdentityUser> signInManager,
                                UserManager<IdentityUser> userManager,
-                               IOptions<JwtOptions> jwtOptions)
+                               IOptions<JwtOptions> jwtOptions,
+                               ILogger logger)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _jwtOptions = jwtOptions.Value;
+            _logger = logger;
         }
 
         public async Task<UserSignedInResponse> SignUp(SignUpUserRequest usuarioCadastro)
@@ -32,13 +38,17 @@ namespace SpendManagement.Identity.Application.Services
                 EmailConfirmed = true
             };
 
-            var result = await _userManager.CreateAsync(identityUser, usuarioCadastro.Passsword);
+            var result = await _userManager.CreateAsync(identityUser, usuarioCadastro.Password);
+
             if (result.Succeeded)
                 await _userManager.SetLockoutEnabledAsync(identityUser, false);
 
             var userSignedResponse = new UserSignedInResponse(result.Succeeded);
+
             if (!result.Succeeded && result.Errors.Any())
                 userSignedResponse.AddError(result.Errors.Select(r => r.Description));
+
+            _logger.Information("User created with successfully", usuarioCadastro.Email);
 
             return userSignedResponse;
         }
@@ -63,6 +73,8 @@ namespace SpendManagement.Identity.Application.Services
                 };
             }
 
+            _logger.Information("User logged with successfully", usuarioLogin.Email);
+
             return usuarioLoginResponse;
         }
 
@@ -72,8 +84,13 @@ namespace SpendManagement.Identity.Application.Services
 
             if (userInClaim.Claims?.Any() == true)
             {
-                await _userManager.AddClaimsAsync(user, userInClaim.Claims.Select(claim => new Claim(claim.ClaimType.ToString(), claim.ClaimValue.ToString())));
+                await _userManager.AddClaimsAsync(user,
+                    userInClaim
+                    .Claims
+                    .Select(claim => new Claim(claim.ClaimType.ToString(), claim.ClaimValue.ToString())));
             }
+
+            _logger.Information("User added in claim with successfully", userInClaim.Email);
 
             return user;
         }
@@ -123,15 +140,15 @@ namespace SpendManagement.Identity.Application.Services
             return new JwtSecurityTokenHandler().WriteToken(jwt);
         }
 
-        private async Task<IList<System.Security.Claims.Claim>> GetClaims(IdentityUser user, bool adicionarClaimsUsuario)
+        private async Task<IList<Claim>> GetClaims(IdentityUser user, bool adicionarClaimsUsuario)
         {
-            var claims = new List<System.Security.Claims.Claim>
+            var claims = new List<Claim>
             {
-                new System.Security.Claims.Claim(JwtRegisteredClaimNames.Sub, user.Id),
-                new System.Security.Claims.Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new System.Security.Claims.Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new System.Security.Claims.Claim(JwtRegisteredClaimNames.Nbf, DateTime.Now.ToString()),
-                new System.Security.Claims.Claim(JwtRegisteredClaimNames.Iat, DateTime.Now.ToString())
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Nbf, DateTime.Now.ToString()),
+                new Claim(JwtRegisteredClaimNames.Iat, DateTime.Now.ToString())
             };
 
             if (adicionarClaimsUsuario)
@@ -142,7 +159,7 @@ namespace SpendManagement.Identity.Application.Services
                 claims.AddRange(userClaims);
 
                 foreach (var role in roles)
-                    claims.Add(new System.Security.Claims.Claim("role", role));
+                    claims.Add(new Claim("role", role));
             }
 
             return claims;

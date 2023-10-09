@@ -13,7 +13,7 @@ namespace SpendManagement.Identity.IoC.Extensions
 {
     public static class AuthenticationExtensions
     {
-        public static void AddAuthentication(this IServiceCollection services, JwtOptionsSettings? settings)
+        public static IServiceCollection AddAuthentication(this IServiceCollection services, JwtOptionsSettings? settings)
         {
             if (settings is not null)
             {
@@ -59,9 +59,11 @@ namespace SpendManagement.Identity.IoC.Extensions
                     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 }).AddJwtBearer(options => options.TokenValidationParameters = tokenValidationParameters);
             }
+
+            return services;
         }
 
-        public static void AddAuthorizationPolicies(this IServiceCollection services)
+        public static IServiceCollection AddAuthorizationPolicies(this IServiceCollection services)
         {
             services.AddSingleton<IAuthorizationHandler, BusinessHours>();
             services.AddAuthorization(options =>
@@ -69,6 +71,8 @@ namespace SpendManagement.Identity.IoC.Extensions
                 options.AddPolicy(Policies.HorarioComercial, policy =>
                     policy.Requirements.Add(new BusinessHourRequirement()));
             });
+
+            return services;
         }
     }
 }

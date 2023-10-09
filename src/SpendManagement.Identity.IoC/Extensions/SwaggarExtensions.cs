@@ -32,6 +32,7 @@ namespace SpendManagement.Identity.IoC.Extensions
                          Array.Empty<string>()
                      }
                  });
+                 c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "SpendManagement.Identity.xml"));
              });
         }
     }

@@ -14,17 +14,21 @@ builder.Configuration
 var applicationSettings = builder.Configuration.GetSection("Settings").Get<Settings>();
 
 // Add services to the container.
-builder.Services.AddTracing(applicationSettings.TracingSettings);
-builder.Services.AddHealthCheckers(applicationSettings.SqlServerSettings);
 builder.Services
+    .AddLoggingDependency()
+    .AddTracing(applicationSettings.TracingSettings)
+    .AddHealthCheckers(applicationSettings.SqlServerSettings)
     .AddControllers()
     .AddJsonOptions(options =>
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
-builder.Services.AddAuthentication(applicationSettings.JwtOptionsSettings);
-builder.Services.AddAuthorizationPolicies();
-builder.Services.RegisterServices(applicationSettings.SqlServerSettings);
-builder.Services.AddCors();
+
 builder.Services
+    .AddAuthentication(applicationSettings.JwtOptionsSettings)
+    .AddAuthorizationPolicies()
+    .RegisterServices(applicationSettings.SqlServerSettings);
+
+builder.Services
+    .AddCors()
     .AddEndpointsApiExplorer()
     .AddSwaggerExtensions();
 
@@ -44,5 +48,6 @@ app.UseCors(builder => builder
     .AllowAnyMethod()
     .AllowAnyHeader()
     .AllowCredentials());
+
 app.MapControllers();
 app.Run();
