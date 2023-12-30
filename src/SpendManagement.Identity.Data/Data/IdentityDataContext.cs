@@ -3,8 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SpendManagement.Identity.Data.Data
 {
-    public class IdentityDataContext : IdentityDbContext
+    public class IdentityDataContext(DbContextOptions<IdentityDataContext> options) : IdentityDbContext(options)
     {
-        public IdentityDataContext(DbContextOptions<IdentityDataContext> options) : base(options) { }
     }
 }

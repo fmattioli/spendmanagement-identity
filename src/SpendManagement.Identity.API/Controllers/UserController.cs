@@ -9,11 +9,9 @@ namespace SpendManagement.Identity.API.Controllers
 {
     [Route("api/v1")]
     [ApiController]
-    public class UserController : Controller
+    public class UserController(IIdentityService identityService) : Controller
     {
-        private readonly IIdentityService _identityService;
-
-        public UserController(IIdentityService identityService) => _identityService = identityService;
+        private readonly IIdentityService _identityService = identityService;
 
         /// <summary>
         /// SignUp Users
@@ -24,16 +22,16 @@ namespace SpendManagement.Identity.API.Controllers
         /// <response code="400">Validation errors</response>
         /// <response code="500">Internal errors</response>
         [HttpPost]
-        [Route("signUp", Name = nameof(SignUp))]
+        [Route("signUp", Name = nameof(SignUpAsync))]
         [ProducesResponseType(typeof(UserLoginResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> SignUp(SignUpUserRequest signUp)
+        public async Task<IActionResult> SignUpAsync(SignUpUserRequest signUp)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var userSignedIn = await _identityService.SignUp(signUp);
+            var userSignedIn = await _identityService.SignUpAsync(signUp);
 
             if (userSignedIn.Success)
             {
@@ -53,48 +51,22 @@ namespace SpendManagement.Identity.API.Controllers
         /// <response code="401">Authentication error</response>
         /// <response code="500">Internal error</response>
         [HttpPost]
-        [Route("login", Name = nameof(Login))]
+        [Route("login", Name = nameof(MakeLoginAsync))]
         [ProducesResponseType(typeof(UserLoginResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<UserLoginResponse>> Login([FromBody] SignInUserRequest login)
+        public async Task<ActionResult<UserLoginResponse>> MakeLoginAsync([FromBody] SignInUserRequest login)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var resultado = await _identityService.Login(login);
+            var result = await _identityService.LoginAsync(login);
 
-            if (resultado.Success)
-                return Ok(resultado);
+            if (result.Success)
+                return Ok(result);
 
             return Unauthorized();
-        }
-
-        /// <summary>
-        /// Get user claims
-        /// </summary>
-        /// <param name="email">User email</param>
-        /// <returns>Return users in claims</returns>
-        /// <response code="201">User logged with sucessfully</response>
-        /// <response code="400">Validation errors</response>
-        /// <response code="401">Authentication error</response>
-        /// <response code="500">Internal error</response>
-        [HttpGet]
-        [Route("getUserClaims", Name = nameof(GetUserClaims))]
-        [ProducesResponseType(typeof(UserLoginResponse), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        [Authorize]
-        public async Task<ActionResult<bool>> GetUserClaims(string email)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest();
-
-            var userClaims = await _identityService.GetUserClaims(email);
-
-            return Ok(userClaims);
         }
 
         /// <summary>
@@ -107,18 +79,18 @@ namespace SpendManagement.Identity.API.Controllers
         /// <response code="401">Authentication error</response>
         /// <response code="500">Internal error</response>
         [HttpPost]
-        [Route("addUserInClaim", Name = nameof(AddUserInClaim))]
+        [Route("addUserInClaim", Name = nameof(AddUserInClaimAsync))]
         [ProducesResponseType(typeof(UserLoginResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         [Authorize]
-        public async Task<ActionResult<bool>> AddUserInClaim([FromBody] AddUserInClaim userClaim)
+        public async Task<ActionResult<bool>> AddUserInClaimAsync([FromBody] AddUserInClaimRequest userClaim)
         {
             if (!ModelState.IsValid)
                 return BadRequest();
 
-            var userClaims = await _identityService.AddUserInClaim(userClaim);
+            var userClaims = await _identityService.AddUserInClaimAsync(userClaim);
             return Created("addUserInClaim", userClaims);
         }
 
@@ -136,18 +108,45 @@ namespace SpendManagement.Identity.API.Controllers
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         [Authorize]
         [HttpPost("refresh-login")]
-        public async Task<ActionResult<UserLoginResponse>> RefreshLogin()
+        public async Task<ActionResult<UserLoginResponse>> RefreshLoginAsync()
         {
             var identity = HttpContext.User.Identity as ClaimsIdentity;
             var usuarioId = identity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
             if (usuarioId is null)
                 return BadRequest();
 
-            var result = await _identityService.LoginWithoutPassword(usuarioId);
+            var result = await _identityService.LoginWithoutPasswordAsync(usuarioId);
             if (result.Success)
                 return Ok(result);
 
             return Unauthorized();
+        }
+
+        /// <summary>
+        /// Get user claims
+        /// </summary>
+        /// <param name="email">User email</param>
+        /// <returns>Return users in claims</returns>
+        /// <response code="201">User logged with sucessfully</response>
+        /// <response code="400">Validation errors</response>
+        /// <response code="401">Authentication error</response>
+        /// <response code="500">Internal error</response>
+        [HttpGet]
+        [Route("getUserClaims", Name = nameof(GetUserClaimsAsync))]
+        [ProducesResponseType(typeof(UserLoginResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        [Authorize]
+        public async Task<ActionResult<bool>> GetUserClaimsAsync(string email)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest();
+
+            var userClaims = await _identityService.GetUserClaimsAsync(email);
+
+            return Ok(userClaims);
         }
     }
 }

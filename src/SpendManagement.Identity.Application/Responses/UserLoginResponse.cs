@@ -7,14 +7,14 @@ namespace SpendManagement.Identity.Application.Responses
         public bool Success => Errors?.Count == 0;
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? AccessToken { get; }
+        public string? AccessToken { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string? RefreshToken { get;}
+        public string? RefreshToken { get; set; }
 
-        public List<string>? Errors { get;}
+        public List<string>? Errors { get; set; }
 
         public UserLoginResponse() =>
-            Errors = new List<string>();
+            Errors = [];
 
         public UserLoginResponse(string accessToken, string refreshToken) : this()
         {

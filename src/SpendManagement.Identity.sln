@@ -3,13 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33530.505
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpendManagement.Identity.API", "SpendManagement.Identity.API\SpendManagement.Identity.API.csproj", "{21C2FA28-9CFE-47A7-81EB-1C2B32C90650}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpendManagement.Identity.API", "SpendManagement.Identity.API\SpendManagement.Identity.API.csproj", "{21C2FA28-9CFE-47A7-81EB-1C2B32C90650}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpendManagement.Identity.Application", "SpendManagement.Identity.Application\SpendManagement.Identity.Application.csproj", "{95437926-ACB6-46C6-9051-6266E31F6E26}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpendManagement.Identity.Application", "SpendManagement.Identity.Application\SpendManagement.Identity.Application.csproj", "{95437926-ACB6-46C6-9051-6266E31F6E26}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpendManagement.Identity.Data", "SpendManagement.Identity.Data\SpendManagement.Identity.Data.csproj", "{1AF6F3D7-7993-4724-BA17-770F1E6BF24E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpendManagement.Identity.Data", "SpendManagement.Identity.Data\SpendManagement.Identity.Data.csproj", "{1AF6F3D7-7993-4724-BA17-770F1E6BF24E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpendManagement.Identity.IoC", "SpendManagement.Identity.IoC\SpendManagement.Identity.IoC.csproj", "{9831E700-174E-4FAD-97C5-959F3A36D7EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpendManagement.Identity.IoC", "SpendManagement.Identity.IoC\SpendManagement.Identity.IoC.csproj", "{9831E700-174E-4FAD-97C5-959F3A36D7EC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpendManagement.UnitTests", "..\tests\SpendManagement.UnitTests\SpendManagement.UnitTests.csproj", "{296525B0-AD03-41C0-BB1D-045FAA800477}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpendManagement.IntegrationTests", "..\tests\SpendManagement.IntegrationTests\SpendManagement.IntegrationTests.csproj", "{D9FE0529-83CE-4A44-AD85-622D739E6785}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +37,14 @@ Global
 		{9831E700-174E-4FAD-97C5-959F3A36D7EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9831E700-174E-4FAD-97C5-959F3A36D7EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9831E700-174E-4FAD-97C5-959F3A36D7EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{296525B0-AD03-41C0-BB1D-045FAA800477}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{296525B0-AD03-41C0-BB1D-045FAA800477}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{296525B0-AD03-41C0-BB1D-045FAA800477}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{296525B0-AD03-41C0-BB1D-045FAA800477}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9FE0529-83CE-4A44-AD85-622D739E6785}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9FE0529-83CE-4A44-AD85-622D739E6785}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9FE0529-83CE-4A44-AD85-622D739E6785}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9FE0529-83CE-4A44-AD85-622D739E6785}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

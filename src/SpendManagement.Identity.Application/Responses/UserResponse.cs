@@ -2,11 +2,11 @@
 {
     public class UserResponse
     {
-        public bool Success { get; }
+        public bool Success { get; set; }
         public List<string> Errors { get; }
 
         public UserResponse() =>
-            Errors = new List<string>();
+            Errors = [];
 
         public UserResponse(bool sucesso = true) : this() =>
             Success = sucesso;

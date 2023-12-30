@@ -9,25 +9,17 @@ using System.Security.Claims;
 
 namespace SpendManagement.Identity.Application.Services
 {
-    public class IdentityService : IIdentityService
+    public class IdentityService(SignInManager<IdentityUser> signInManager,
+                           UserManager<IdentityUser> userManager,
+                           IOptions<JwtOptions> jwtOptions,
+                           ILogger logger) : IIdentityService
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly JwtOptions _jwtOptions;
-        private readonly ILogger _logger;
+        private readonly SignInManager<IdentityUser> _signInManager = signInManager;
+        private readonly UserManager<IdentityUser> _userManager = userManager;
+        private readonly JwtOptions _jwtOptions = jwtOptions.Value;
+        private readonly ILogger _logger = logger;
 
-        public IdentityService(SignInManager<IdentityUser> signInManager,
-                               UserManager<IdentityUser> userManager,
-                               IOptions<JwtOptions> jwtOptions,
-                               ILogger logger)
-        {
-            _signInManager = signInManager;
-            _userManager = userManager;
-            _jwtOptions = jwtOptions.Value;
-            _logger = logger;
-        }
-
-        public async Task<UserResponse> SignUp(SignUpUserRequest usuarioCadastro)
+        public async Task<UserResponse> SignUpAsync(SignUpUserRequest usuarioCadastro)
         {
             var identityUser = new IdentityUser
             {
@@ -36,7 +28,7 @@ namespace SpendManagement.Identity.Application.Services
                 EmailConfirmed = true
             };
 
-            var result = await _userManager.CreateAsync(identityUser, usuarioCadastro.Password);
+            var result = await _userManager.CreateAsync(identityUser, usuarioCadastro.Password!);
 
             if (result.Succeeded)
                 await _userManager.SetLockoutEnabledAsync(identityUser, false);
@@ -51,9 +43,9 @@ namespace SpendManagement.Identity.Application.Services
             return userSignedResponse;
         }
 
-        public async Task<UserLoginResponse> Login(SignInUserRequest usuarioLogin)
+        public async Task<UserLoginResponse> LoginAsync(SignInUserRequest usuarioLogin)
         {
-            var result = await _signInManager.PasswordSignInAsync(usuarioLogin.Email, usuarioLogin.Password, false, true);
+            var result = await _signInManager.PasswordSignInAsync(usuarioLogin.Email!, usuarioLogin.Password!, false, true);
 
             if (result.Succeeded)
                 return await GenerateCredentials(usuarioLogin.Email);
@@ -74,7 +66,7 @@ namespace SpendManagement.Identity.Application.Services
             return usuarioLoginResponse;
         }
 
-        public async Task<IEnumerable<Claim>> GetUserClaims(string email)
+        public async Task<IEnumerable<Claim>> GetUserClaimsAsync(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
 
@@ -84,9 +76,9 @@ namespace SpendManagement.Identity.Application.Services
             return Enumerable.Empty<Claim>();
         }
 
-        public async Task<UserResponse> AddUserInClaim(AddUserInClaim userInClaim)
+        public async Task<UserResponse> AddUserInClaimAsync(AddUserInClaimRequest userInClaim)
         {
-            var user = await _userManager.FindByEmailAsync(userInClaim.Email);
+            var user = await _userManager.FindByEmailAsync(userInClaim.Email!);
 
             if (user != null && userInClaim.Claims?.Any() == true)
             {
@@ -94,7 +86,7 @@ namespace SpendManagement.Identity.Application.Services
                     .Select(claim => new Claim(claim.ClaimType.ToString(), claim.ClaimValue.ToString()))
                     .ToList();
 
-                if (claimsToAdd.Any())
+                if (claimsToAdd.Count != 0)
                 {
                     var identityResult = await _userManager.AddClaimsAsync(user, claimsToAdd);
 
@@ -110,24 +102,24 @@ namespace SpendManagement.Identity.Application.Services
             return new UserResponse(false);
         }
 
-        public async Task<UserLoginResponse> LoginWithoutPassword(string usuarioId)
+        public async Task<UserLoginResponse> LoginWithoutPasswordAsync(string usuarioId)
         {
             var usuarioLoginResponse = new UserLoginResponse();
             var usuario = await _userManager.FindByIdAsync(usuarioId);
 
             return _userManager switch
             {
-                _ when await _userManager.IsLockedOutAsync(usuario) => usuarioLoginResponse.AddErrors("This account is locked."),
-                _ when !await _userManager.IsEmailConfirmedAsync(usuario) => usuarioLoginResponse.AddErrors("This account is locked."),
-                _ => await GenerateCredentials(usuario.Email)
+                _ when await _userManager.IsLockedOutAsync(usuario!) => usuarioLoginResponse.AddErrors("This account is locked."),
+                _ when !await _userManager.IsEmailConfirmedAsync(usuario!) => usuarioLoginResponse.AddErrors("This account is locked."),
+                _ => await GenerateCredentials(usuario!.Email)
             };
         }
 
         private async Task<UserLoginResponse> GenerateCredentials(string? email)
         {
-            var user = await _userManager.FindByEmailAsync(email);
-            var accessTokenClaims = await GetClaims(user, true);
-            var refreshTokenClaims = await GetClaims(user, false);
+            var user = await _userManager.FindByEmailAsync(email!);
+            var accessTokenClaims = await GetClaims(user!, true);
+            var refreshTokenClaims = await GetClaims(user!, false);
 
             var dataExpiracaoAccessToken = DateTime.Now.AddSeconds(_jwtOptions.AccessTokenExpiration);
             var dataExpiracaoRefreshToken = DateTime.Now.AddSeconds(_jwtOptions.RefreshTokenExpiration);
@@ -161,11 +153,11 @@ namespace SpendManagement.Identity.Application.Services
         {
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Nbf, DateTime.Now.ToString()),
-                new Claim(JwtRegisteredClaimNames.Iat, DateTime.Now.ToString())
+                new(JwtRegisteredClaimNames.Sub, user.Id),
+                new(JwtRegisteredClaimNames.Email, user.Email!),
+                new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new(JwtRegisteredClaimNames.Nbf, DateTime.Now.ToString()),
+                new(JwtRegisteredClaimNames.Iat, DateTime.Now.ToString())
             };
 
             if (adicionarClaimsUsuario)
