@@ -21,8 +21,8 @@ builder.Logging
 // Add services to the container.
 builder.Services
     .AddLoggingDependency()
-    .AddTracing(applicationSettings.TracingSettings)
-    .AddHealthCheckers(applicationSettings.SqlServerSettings)
+    .AddTracing(applicationSettings!.TracingSettings)
+    .AddHealthCheckers(applicationSettings!.SqlServerSettings)
     .AddControllers()
     .AddJsonOptions(options =>
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));

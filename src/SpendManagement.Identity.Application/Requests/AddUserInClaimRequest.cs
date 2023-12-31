@@ -1,6 +1,6 @@
 ﻿namespace SpendManagement.Identity.Application.Requests
 {
-    public class AddUserInClaim
+    public class AddUserInClaimRequest
     {
         public string? Email { get; set; }
         public IEnumerable<UserClaim>? Claims { get; set; }
