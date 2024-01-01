@@ -121,8 +121,8 @@ namespace SpendManagement.Identity.Application.Services
             var accessTokenClaims = await GetClaims(user!, true);
             var refreshTokenClaims = await GetClaims(user!, false);
 
-            var dataExpiracaoAccessToken = DateTime.Now.AddSeconds(_jwtOptions.AccessTokenExpiration);
-            var dataExpiracaoRefreshToken = DateTime.Now.AddSeconds(_jwtOptions.RefreshTokenExpiration);
+            var dataExpiracaoAccessToken = DateTime.UtcNow.AddSeconds(_jwtOptions.AccessTokenExpiration);
+            var dataExpiracaoRefreshToken = DateTime.UtcNow.AddSeconds(_jwtOptions.RefreshTokenExpiration);
 
             var accessToken = GerarToken(accessTokenClaims, dataExpiracaoAccessToken);
             var refreshToken = GerarToken(refreshTokenClaims, dataExpiracaoRefreshToken);
@@ -151,13 +151,14 @@ namespace SpendManagement.Identity.Application.Services
 
         private async Task<IList<Claim>> GetClaims(IdentityUser user, bool adicionarClaimsUsuario)
         {
+            long iat = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
             var claims = new List<Claim>
             {
                 new(JwtRegisteredClaimNames.Sub, user.Id),
                 new(JwtRegisteredClaimNames.Email, user.Email!),
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new(JwtRegisteredClaimNames.Nbf, DateTime.Now.ToString()),
-                new(JwtRegisteredClaimNames.Iat, DateTime.Now.ToString())
+                new(JwtRegisteredClaimNames.Iat, iat.ToString())
             };
 
             if (adicionarClaimsUsuario)
