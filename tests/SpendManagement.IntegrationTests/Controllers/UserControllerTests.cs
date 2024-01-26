@@ -5,7 +5,6 @@ using SpendManagement.Identity.Application.Requests;
 using SpendManagement.Identity.Application.Responses;
 using SpendManagement.IntegrationTests.Utils;
 using System.Net;
-using System.Security.Claims;
 
 namespace SpendManagement.IntegrationTests.Controllers
 {
@@ -31,8 +30,8 @@ namespace SpendManagement.IntegrationTests.Controllers
 
             //AssertSuccess
             StatusCode.Should().Be(HttpStatusCode.Created);
-            var categoriesResponse = JsonConvert.DeserializeObject<UserResponse>(Content);
-            categoriesResponse?.Success.Should().BeTrue();
+            var userResponse = JsonConvert.DeserializeObject<UserResponse>(Content);
+            userResponse?.Success.Should().BeTrue();
         }
 
         [Fact]
@@ -61,10 +60,10 @@ namespace SpendManagement.IntegrationTests.Controllers
 
             //AssertSuccess
             StatusCode.Should().Be(HttpStatusCode.OK);
-            var categoriesResponse = JsonConvert.DeserializeObject<UserLoginResponse>(Content);
-            categoriesResponse?.Success.Should().BeTrue();
-            categoriesResponse?.AccessToken.Should().NotBeNull();
-            categoriesResponse?.RefreshToken.Should().NotBeNull();
+            var userResponse = JsonConvert.DeserializeObject<UserLoginResponse>(Content);
+            userResponse?.Success.Should().BeTrue();
+            userResponse?.AccessToken.Should().NotBeNull();
+            userResponse?.RefreshToken.Should().NotBeNull();
         }
 
         [Fact]
@@ -99,8 +98,8 @@ namespace SpendManagement.IntegrationTests.Controllers
 
             //Assert
             StatusCode.Should().Be(HttpStatusCode.Created);
-            var categoriesResponse = JsonConvert.DeserializeObject<UserResponse>(Content);
-            categoriesResponse?.Success.Should().BeTrue();
+            var userResponse = JsonConvert.DeserializeObject<UserResponse>(Content);
+            userResponse?.Success.Should().BeTrue();
         }
 
         [Fact]
