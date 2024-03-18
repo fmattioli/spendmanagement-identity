@@ -15,7 +15,7 @@ namespace SpendManagement.UnitTests.Controllers
         private readonly Mock<HttpContext> _httpContext;
         private readonly UserController _userController;
         private readonly Mock<IIdentityService> _identityServiceMock = new();
-        private readonly Fixture fixture = new();
+        private readonly Fixture _fixture = new();
 
         public UserControllerTests()
         {
@@ -43,8 +43,8 @@ namespace SpendManagement.UnitTests.Controllers
         public async Task GivenValidSignUpOnSignUpEndpoint_SignUpMethodShouldBeCalled()
         {
             //Arrange
-            var userSignUp = fixture.Create<SignUpUserRequest>();
-            var userResponse = fixture.Create<UserResponse>();
+            var userSignUp = _fixture.Create<SignUpUserRequest>();
+            var userResponse = _fixture.Create<UserResponse>();
 
             _identityServiceMock
                 .Setup(x => x.SignUpAsync(userSignUp))
@@ -62,8 +62,8 @@ namespace SpendManagement.UnitTests.Controllers
         public async Task GivenValidLoginOnLoginEndpoint_SignInMethodShouldBeCalled()
         {
             //Arrange
-            var userSignIn = fixture.Create<SignInUserRequest>();
-            var userResponse = fixture.Create<UserLoginResponse>();
+            var userSignIn = _fixture.Create<SignInUserRequest>();
+            var userResponse = _fixture.Create<UserLoginResponse>();
 
             _identityServiceMock
                 .Setup(x => x.LoginAsync(userSignIn))
@@ -81,9 +81,9 @@ namespace SpendManagement.UnitTests.Controllers
         public async Task GivenValidEmailOnGetUserClaimsEndpoint_GetUserClaimsAsyncShouldBeCalled()
         {
             //Arrange
-            var email = fixture.Create<string>();
-            var claim1 = new Claim(fixture.Create<string>(), fixture.Create<string>());
-            var claim2 = new Claim(fixture.Create<string>(), fixture.Create<string>());
+            var email = _fixture.Create<string>();
+            var claim1 = new Claim(_fixture.Create<string>(), _fixture.Create<string>());
+            var claim2 = new Claim(_fixture.Create<string>(), _fixture.Create<string>());
 
             var claims = new List<Claim> { claim1, claim2 };
 
@@ -103,8 +103,8 @@ namespace SpendManagement.UnitTests.Controllers
         public async Task GivenValidUserClaimOnAddUserInClaimEndpoint_AddUserInClaimAsyncShouldBeCalled()
         {
             //Arrange
-            var userClaim = fixture.Create<AddUserInClaimRequest>();
-            var userResponse = fixture.Create<UserResponse>();
+            var userClaim = _fixture.Create<AddUserInClaimRequest>();
+            var userResponse = _fixture.Create<UserResponse>();
 
             _identityServiceMock
                 .Setup(x => x.AddUserInClaimAsync(userClaim))
@@ -124,7 +124,7 @@ namespace SpendManagement.UnitTests.Controllers
             //Arrange
             var identity = _httpContext.Object.User.Identity as ClaimsIdentity;
             var userId = identity?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var userResponse = fixture.Create<UserLoginResponse>();
+            var userResponse = _fixture.Create<UserLoginResponse>();
 
             _identityServiceMock
                 .Setup(x => x.LoginWithoutPasswordAsync(userId!))
