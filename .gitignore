@@ -397,7 +397,7 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-*appsettings.Docker.json
+#*appsettings.Docker.json
 
 
 *.env
