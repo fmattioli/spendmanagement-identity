@@ -20,7 +20,7 @@ namespace SpendManagement.Identity.IoC.Extensions
 
         private static string GetConnectionStringFromRenderSecret()
         {
-            return Environment.GetEnvironmentVariable("ConnectionString") ?? "";
+            return Environment.GetEnvironmentVariable("ConnectionString")!;
         }
     }
 }
