@@ -12,7 +12,7 @@ namespace SpendManagement.Identity.IoC.Extensions
         public static void RegisterServices(this IServiceCollection services, SqlServerSettings? sqlserver)
         {
             services.AddDbContext<IdentityDataContext>(options =>
-                options.UseSqlServer(sqlserver?.ConnectionString ?? throw new Exception("Invalid sqlserver connection string"))
+                options.UseNpgsql(sqlserver?.ConnectionString!)
             );
 
             services.AddDefaultIdentity<IdentityUser>()
