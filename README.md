@@ -9,6 +9,7 @@ This project aims to be the identity related to the users who use the spendmanag
 > https://github.com/fmattioli/spendmanagement-readmodel <br/>
 
 # Related packages
+> https://github.com/fmattioli/spendmanagement-webcontracts <br/>
 > https://github.com/fmattioli/spendmanagement-contracts <br/>
 > https://github.com/fmattioli/spendmanagement-topics
 
