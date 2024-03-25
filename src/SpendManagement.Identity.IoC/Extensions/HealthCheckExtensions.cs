@@ -8,13 +8,15 @@ namespace SpendManagement.Identity.IoC.Extensions
 {
     public static class HealthCheckExtensions
     {
+        private static readonly string[] tags = ["db", "data"];
+
         public static IServiceCollection AddHealthCheckers(this IServiceCollection services, SqlServerSettings? settings)
         {
             if (settings?.ConnectionString is not null)
             {
                 services
                     .AddHealthChecks()
-                    .AddSqlServer(settings.ConnectionString, name: "SqlServer", tags: new string[] { "db", "data" });
+                    .AddNpgSql(settings.ConnectionString, name: "SqlServer", tags: tags);
 
                 services
                     .AddHealthChecksUI()
