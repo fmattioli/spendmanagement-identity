@@ -16,7 +16,7 @@ namespace SpendManagement.Identity.IoC.Extensions
             {
                 services
                     .AddHealthChecks()
-                    .AddNpgSql(settings.ConnectionString, name: "SqlServer", tags: tags);
+                    .AddNpgSql(settings.ConnectionString, name: "Postgres", tags: tags);
 
                 services
                     .AddHealthChecksUI()
