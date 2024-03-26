@@ -44,17 +44,25 @@ namespace SpendManagement.UnitTests.Controllers
         {
             //Arrange
             var userSignUp = _fixture.Create<SignUpUserRequest>();
-            var userResponse = _fixture.Create<UserResponse>();
+            var userResponse = _fixture
+                .Build<UserResponse>()
+                .With(x => x.Success, true)
+                .Create();
 
             _identityServiceMock
-                .Setup(x => x.SignUpAsync(userSignUp))
-                .Returns(Task.FromResult(userResponse));
+                .Setup(x => x.SignUpAsync(It.IsAny<SignUpUserRequest>()))
+                .ReturnsAsync(userResponse);
+
+            _identityServiceMock
+                .Setup(x => x.AddUserInClaimAsync(It.IsAny<AddUserInClaimRequest>()))
+                .Returns(Task.FromResult(It.IsAny<UserResponse>()));
 
             //Act
             await _userController.SignUpAsync(userSignUp);
 
             //Assert
             _identityServiceMock.Verify(x => x.SignUpAsync(userSignUp), Times.Once);
+            _identityServiceMock.Verify(x => x.AddUserInClaimAsync(It.IsAny<AddUserInClaimRequest>()), Times.Once);
             _identityServiceMock.VerifyNoOtherCalls();
         }
 
