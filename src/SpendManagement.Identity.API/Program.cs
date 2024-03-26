@@ -1,17 +1,17 @@
 using SpendManagement.Identity.IoC.Extensions;
-using SpendManagement.Identity.IoC.Models;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var enviroment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
 builder.Configuration
     .AddJsonFile("appsettings.json", false, reloadOnChange: true)
-    .AddJsonFile($"appsettings.{enviroment}.json", true, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{environment}.json", true, reloadOnChange: true)
     .AddEnvironmentVariables();
 
-var applicationSettings = builder.Configuration.GetSection("Settings").Get<Settings>();
+
+var applicationSettings = builder.Configuration.GetApplicationSettings(builder.Environment);
 
 builder.Logging
     .ClearProviders()
