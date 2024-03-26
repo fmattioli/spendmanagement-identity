@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using SpendManagement.Identity.Application.Requests;
 using SpendManagement.Identity.Application.Responses;
@@ -35,6 +36,24 @@ namespace SpendManagement.Identity.API.Controllers
 
             if (userSignedIn.Success)
             {
+                await _identityService.AddUserInClaimAsync(new AddUserInClaimRequest
+                {
+                    Email = signUp.Email,
+                    Claims = new List<UserClaim>
+                    {
+                        new()
+                        {
+                            ClaimType = ClaimType.Category,
+                            ClaimValue = ClaimValue.Read
+                        },
+                        new()
+                        {
+                            ClaimType = ClaimType.Receipt,
+                            ClaimValue = ClaimValue.Read
+                        }
+                    }
+                });
+
                 return Created("/signUp", userSignedIn);
             }
 
